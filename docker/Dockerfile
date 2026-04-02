@@ -1,4 +1,18 @@
-FROM quay.io/pypa/manylinux2014_x86_64
+# Build arg to select architecture: x86_64 or aarch64
+ARG ARCH=x86_64
+
+# manylinux2014 base image varies by arch
+FROM quay.io/pypa/manylinux2014_${ARCH}
+
+ARG ARCH=x86_64
+
+# Map ARCH to NVIDIA CUDA repo path: x86_64 -> x86_64, aarch64 -> sbsa
+# sbsa = Server Base System Architecture (NVIDIA's ARM server platform)
+RUN if [ "$ARCH" = "aarch64" ]; then \
+        echo "sbsa" > /tmp/cuda_arch; \
+    else \
+        echo "$ARCH" > /tmp/cuda_arch; \
+    fi
 
 # basic development tools
 RUN yum update -y && yum install -y wget git && yum upgrade -y && yum clean all
@@ -9,7 +23,8 @@ RUN yum install -y zsh && \
     sh -c -y "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # get cuda
-RUN yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo && \
+RUN CUDA_ARCH=$(cat /tmp/cuda_arch) && \
+    yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/${CUDA_ARCH}/cuda-rhel7.repo && \
     yum clean all && \
     yum -y install cuda-toolkit-12-4 && \
     echo 'export PATH=/usr/local/cuda-12.4/bin${PATH:+:${PATH}}' >> ~/.zshrc && \
