@@ -11,7 +11,7 @@ set(CMAKE_CUDA_RUNTIME_LIBRARY Static)
 # https://github.com/pybind/pybind11/issues/4825
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
 
-set(TORCH_CUDA_ARCH_LIST "8.0 8.6 8.9 9.0 10.0 11.0 12.1")
+set(TORCH_CUDA_ARCH_LIST "8.0 8.6 8.7 8.9 9.0 10.0 11.0 12.1")
 
 # find torch if no explicit path is given
 if(NOT DEFINED CMAKE_PREFIX_PATH)
@@ -54,7 +54,7 @@ target_link_libraries(parser PRIVATE urdfdom_model tinyxml2 console_bridge)
 
 # then make core kinematics library
 add_library(kinematics src/kinematics.cu src/fast_kinematics.cu)
-set_target_properties(kinematics PROPERTIES CUDA_ARCHITECTURES "80;86;89;90;100;110;121")
+set_target_properties(kinematics PROPERTIES CUDA_ARCHITECTURES "80;86;87;89;90;100;110;121")
 set_target_properties(kinematics PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 target_compile_options(kinematics PRIVATE --expt-relaxed-constexpr -diag-suppress 20012,20236)
 target_link_libraries(kinematics PRIVATE parser CUDA::cudart_static)
